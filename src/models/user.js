@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/dbConfig').default;
+
 const bcrypt = require('bcryptjs');
 
 const userSchema = sequelize.define('user', {
@@ -26,6 +27,9 @@ const userSchema = sequelize.define('user', {
   'primary_address': {
     'type': Sequelize.STRING(255)
   },
+  'secondary_address': {
+    'type': Sequelize.STRING(255)
+  },
   'state': {
     'type': Sequelize.STRING(100)
   },
@@ -39,16 +43,17 @@ const userSchema = sequelize.define('user', {
     'type': Sequelize.STRING(30)
   }
 }, {
-  'indexes': [{
-    'fields': ['id']
-  },
-  {
-    'unique': true,
-    'fields': ['email']
-  },
-  {
-    'fields': ['password']
-  }
+  'indexes': [
+    {
+      'fields': ['id']
+    },
+    {
+      'unique': true,
+      'fields': ['email']
+    },
+    {
+      'fields': ['password']
+    }
   ]
 });
 
