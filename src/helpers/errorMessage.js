@@ -39,6 +39,6 @@ exports.errorMessages = {
   },
   invalidEmailOrPassword: {
     code: 'Bad Request',
-    message: 'Check Your Email/Password.'
+    message: 'Invalid email or password.'
   },
 };

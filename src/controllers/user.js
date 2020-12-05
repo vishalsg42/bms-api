@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const Joi = require('@hapi/joi');
 const utils = require('../helpers/utils');
 const jwt = require('jsonwebtoken');
+const authService = require('../services/authServices');
 
 const {
   statusCodes: {
@@ -155,10 +156,9 @@ exports.signinUser = async (req, res) => {
       return res.status(fourNotThree).send(utils.responseMsg(errorMsg.invalidEmailOrPassword));
     }
 
-    const authToken = this.signToken({ 'user_id': userDetails.id });
     res.send(utils.responseMsg(null, true, {
-      'auth': true,
-      'authToken': authToken,
+      'msg': 'Login Successfull',
+      'token': authService.createToken({ email }),
     }));
 
   } catch (error) {

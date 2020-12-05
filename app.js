@@ -13,7 +13,7 @@ const cors = require('cors');
 const passport = require('passport');
 
 dotenvFlow.config();
-console.log(' Current Environment ===>', process.env.NODE_ENV);
+console.log('Current Environment ===>', process.env.NODE_ENV);
 
 //Local Modules
 const utils = require('./src/helpers/utils');
@@ -42,7 +42,7 @@ app.disable('x-powered-by');
 app.use(responseTime());
 
 //Best practices app settings
-app.set('title', 'PRDXN Node API');
+app.set('title', 'Movie API');
 app.set('query parser', 'extended');
 
 const clientUrl = process.env.CLIENT_URL || config.client;
@@ -106,9 +106,6 @@ const limiter = require('express-limiter')(app, client);
 const apiRateLimit = require('./src/services/apiRateLimit').rateLimit;
 const limitCount = process.env.RATE_LIMIT_COUNT || 10,
   limitMinute = process.env.RATE_LIMIT_MINUTE || 1;
-
-/* Winston Logger */
-// app.use(logger.default);
 
 /* Configuring Routes */
 app.use('/api', apiRateLimit(limiter, limitCount, limitMinute), routes);

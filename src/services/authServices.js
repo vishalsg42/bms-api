@@ -12,15 +12,17 @@ let opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.algorithms = [algorithm, 'HS256'];
 opts.secretOrKey = secret;
-passport.use(
-  new JwtStrategy(opts, (token, done) => {
-    try {
-      done(null, token);
-    } catch (error) {
-      done(error);
-    }
-  })
-);
+
+const strategy = new JwtStrategy(opts, (token, done) => {
+  try {
+    done(null, token);
+  } catch (error) {
+    done(error);
+  }
+});
+
+
+passport.use(strategy);
 
 /**
  * @name createToken
@@ -41,34 +43,3 @@ exports.createToken = (data) => {
     return error;
   }
 };
-
-/**
- * This is demo strategy for third party authentication from Google OAuth. (If application doesn't need it please delete this comment.)
- * To use such authentication developer needs to install appropriate npm package for that third party application. 
- * 
- * passport.use(
-  new GoogleStrategy(
-    {
-      callbackURL,
-      clientID,
-      clientSecret,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        let user = {
-          providerInfo: {
-            id: profile.id,
-            name: profile.provider,
-          },
-          name: profile.displayName,
-          email: profile.emails[0].value,
-        };
-        done(null, user);
-      } catch (error) {
-        console.error(error);
-        done(error);
-      }
-    }
-  )
-);
- */

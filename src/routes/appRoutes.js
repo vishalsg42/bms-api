@@ -38,7 +38,7 @@ router.post('/user/register', dependencies.user.registerUser);
 
 /**
  * @swagger
- * /user/register:
+ * /login:
  *  post:
  *    tags:
  *      - User
@@ -69,6 +69,6 @@ router.post('/user/register', dependencies.user.registerUser);
  *      500:
  *        description: Internal server error.
  */
-router.post('/user/token', dependencies.user.signinUser);
+router.post('/login', dependencies.user.signinUser);
 
 module.exports = router;
