@@ -8,15 +8,15 @@ exports.checkIfDataExists = (data) => {
   let flagDataExists;
   if (data === 0 ? '0' : data) {
     switch (data.constructor) {
-      case Object:
-        flagDataExists = Object.keys(data).length ? true : false;
-        break;
-      case Array:
-        flagDataExists = data.length ? true : false;
-        break;
-      default:
-        flagDataExists = true;
-        break;
+    case Object:
+      flagDataExists = Object.keys(data).length ? true : false;
+      break;
+    case Array:
+      flagDataExists = data.length ? true : false;
+      break;
+    default:
+      flagDataExists = true;
+      break;
     }
     if (flagDataExists) {
       return true;
@@ -61,4 +61,15 @@ exports.responseMsg = (errMsg, successStatus, data, paginated) => {
   }
 
   return responseObj;
+};
+
+/****
+ * Status codes used in controllers.
+ */
+exports.statusCodes = {
+  'fourHundred': 400,
+  'fiveHundred': 500,
+  'fourNotFour': 404,
+  'fourNotThree': 403,
+  'fourNotOne': 401
 };

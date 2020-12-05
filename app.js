@@ -105,7 +105,10 @@ app.use(compression());
 const limiter = require('express-limiter')(app, client);
 const apiRateLimit = require('./src/services/apiRateLimit').rateLimit;
 const limitCount = process.env.RATE_LIMIT_COUNT || 10,
-  limitMinute = process.env.RATE_LIMIT_MINUTE || 1; 
+  limitMinute = process.env.RATE_LIMIT_MINUTE || 1;
+
+/* Winston Logger */
+// app.use(logger.default);
 
 /* Configuring Routes */
 app.use('/api', apiRateLimit(limiter, limitCount, limitMinute), routes);
