@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const dependencies = require('./routesDependencies').default;
+// const dependencies = require('./routesDependencies').default;
 
 /**
  * @swagger
@@ -32,7 +32,7 @@ const dependencies = require('./routesDependencies').default;
  *      500:
  *        description: Internal server error.
  */
-router.post('/login', dependencies.authClient.login);
+// router.post('/login', dependencies.authClient.login);
 
 /**
  * @note All routes regarding local signup OR using Oauth sign-in should be listed below. 

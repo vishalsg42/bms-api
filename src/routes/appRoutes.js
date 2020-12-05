@@ -69,6 +69,10 @@ router.post('/user/register', dependencies.user.registerUser);
  *      500:
  *        description: Internal server error.
  */
-router.post('/login', dependencies.user.signinUser);
+router.post('/login', dependencies.user.login);
+
+// router.get("/secret", passport.authenticate('jwt', { session: false }), function (req, res) {
+//   res.json("Success! You can not see this without a token");
+// });
 
 module.exports = router;

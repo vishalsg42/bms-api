@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const {
@@ -13,16 +12,13 @@ opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.algorithms = [algorithm, 'HS256'];
 opts.secretOrKey = secret;
 
-const strategy = new JwtStrategy(opts, (token, done) => {
+exports.strategy = new JwtStrategy(opts, (token, done) => {
   try {
     done(null, token);
   } catch (error) {
     done(error);
   }
 });
-
-
-passport.use(strategy);
 
 /**
  * @name createToken

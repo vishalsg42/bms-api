@@ -24,12 +24,14 @@ const config = require('./src/config/config');
 const routes = require('./src/routes/routes');
 
 /* Passport.js initialization */
-require('./src/services/authServices');
-passport.initialize();
+const authStrategy = require('./src/services/authServices');
 
 require('./src/requireAllModels');
 
+
+passport.use(authStrategy.strategy);
 const app = express();
+app.use(passport.initialize());
 
 /* Security Middleware */
 app.use(helmet());
@@ -113,6 +115,22 @@ app.use('/api', apiRateLimit(limiter, limitCount, limitMinute), routes);
 /* Handling invalid route */
 app.use('/', function (req, res) {
   res.status(404).send(utils.responseMsg(errorMessages.routeNotFound));
+});
+
+// Error Handling
+app.use(function (err, req, res) {
+  console.log('Logged:: err', err.name);
+  if (err.name === 'Unauthorized') {
+    res.status(401).send({
+      'success': false,
+      'error': {
+        'code': 'Unauthorized',
+        'message': err.message
+      }
+    });
+  } else {
+    res.status(err.status || 500).send(utils.responseMsg(errorMessages.internalServerError));
+  }
 });
 
 /**

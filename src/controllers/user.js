@@ -110,11 +110,11 @@ exports.registerUser = async (req, res) => {
 };
 
 /**
- * signinUser
+ * login
  * @param {Object} req request object
  * @param {Object} res response object
  */
-exports.signinUser = async (req, res) => {
+exports.login = async (req, res) => {
   try {
 
     if (!utils.checkIfDataExists(req.body)) {
@@ -157,9 +157,11 @@ exports.signinUser = async (req, res) => {
     }
 
     res.send(utils.responseMsg(null, true, {
-      'msg': 'Login Successfull',
+      email,
+      id: userDetails.id,
       'token': authService.createToken({ email }),
     }));
+
 
   } catch (error) {
     errorLog.error(error);
