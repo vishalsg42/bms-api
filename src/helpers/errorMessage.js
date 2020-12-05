@@ -23,4 +23,14 @@ exports.errorMessages = {
     code: 'Bad Request',
     message: 'Data doesn\'t exist',
   },
+  invalidDataProvided: (msg = 'Invalid Data') => {
+    return {
+      code: 'Bad Request',
+      message: msg
+    };
+  },
+  userExists: {
+    code: 'Bad Request.',
+    message: 'User Already Exists.'
+  },
 };

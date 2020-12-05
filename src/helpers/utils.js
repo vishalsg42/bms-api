@@ -71,5 +71,7 @@ exports.statusCodes = {
   'fiveHundred': 500,
   'fourNotFour': 404,
   'fourNotThree': 403,
-  'fourNotOne': 401
+  'fourNotOne': 401,
+  'twoHundred': 200,
+  'twoNotOne': 201,
 };
