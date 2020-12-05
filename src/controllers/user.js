@@ -108,8 +108,6 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-
-
 /**
  * signinUser
  * @param {Object} req request object

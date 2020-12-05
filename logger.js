@@ -61,5 +61,3 @@ exports.logger = {
     transports: [new winston.transports.Console()],
   })
 };
-
-// module.exports =  winston.createLogger(loggerFormat);
