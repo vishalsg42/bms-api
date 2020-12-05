@@ -27,9 +27,6 @@ const userSchema = sequelize.define('user', {
   'primary_address': {
     'type': Sequelize.STRING(255)
   },
-  'secondary_address': {
-    'type': Sequelize.STRING(255)
-  },
   'state': {
     'type': Sequelize.STRING(100)
   },
