@@ -6,9 +6,9 @@ const dependencies = require('./routesDependencies').default;
  * /user/register:
  *  post:
  *    tags:
- *      - Authentication
- *    name: Local Login API
- *    summary: Based on user's data, this api sent jwt token which leads to login process.
+ *      - User
+ *    name: User Registration
+ *    summary: To register user with the help of email & password.
  *    consumes:
  *      - application/json
  *    produces:
@@ -19,7 +19,7 @@ const dependencies = require('./routesDependencies').default;
  *        schema:
  *         type: object
  *         properties:
- *          email: 
+ *          email:
  *            type: string
  *          password:
  *            type: string
@@ -35,5 +35,40 @@ const dependencies = require('./routesDependencies').default;
  *        description: Internal server error.
  */
 router.post('/user/register', dependencies.user.registerUser);
+
+/**
+ * @swagger
+ * /user/register:
+ *  post:
+ *    tags:
+ *      - User
+ *    name: User Signin
+ *    summary: Generate Token to login
+ *    consumes:
+ *      - application/json
+ *    produces:
+ *      - application/json
+ *    parameters:
+ *      - name: Body Data
+ *        in: body
+ *        schema:
+ *         type: object
+ *         properties:
+ *          email:
+ *            type: string
+ *          password:
+ *            type: string
+ *        required:
+ *         - email
+ *         - password
+ *    responses:
+ *      200:
+ *        description: Auth token should be returned.
+ *      400:
+ *        description: User already exist.
+ *      500:
+ *        description: Internal server error.
+ */
+router.post('/user/token', dependencies.user.signinUser);
 
 module.exports = router;

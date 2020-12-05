@@ -1,14 +1,16 @@
 const sequelize = require('../config/dbConfig').default;
 const errorMsg = require('../helpers/errorMessage').errorMessages;
-// const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 const Joi = require('@hapi/joi');
 const utils = require('../helpers/utils');
+const jwt = require('jsonwebtoken');
 
 const {
   statusCodes: {
     fiveHundred,
     twoNotOne,
-    fourHundred
+    fourHundred,
+    fourNotThree
   }
 } = utils;
 
@@ -18,6 +20,11 @@ const {
   }
 } = require('../../logger');
 
+/**
+ * RegisterUser
+ * @param {Object} req request object
+ * @param {Object} res response object
+ */
 exports.registerUser = async (req, res) => {
   try {
 
@@ -69,7 +76,6 @@ exports.registerUser = async (req, res) => {
       return res.status(400).send(utils.responseMsg(errorMsg.invalidDataProvided(result.error.message)));
     }
 
-
     let user = await sequelize.model('user').findOne({
       'where': {
         'email': {
@@ -98,7 +104,76 @@ exports.registerUser = async (req, res) => {
     res.status(twoNotOne).send(utils.responseMsg(null, true, createUser));
   } catch (error) {
     errorLog.error(error);
-    // logger.log(error)
     return res.status(fiveHundred).send(utils.responseMsg(errorMsg.internalServerError));
   }
+};
+
+
+
+/**
+ * signinUser
+ * @param {Object} req request object
+ * @param {Object} res response object
+ */
+exports.signinUser = async (req, res) => {
+  try {
+
+    if (!utils.checkIfDataExists(req.body)) {
+      return res.status(400).send(utils.responseMsg(errorMsg.noPostDataProvided));
+    }
+
+    let {
+      email,
+      password,
+    } = req.body;
+
+    const schema = Joi.object({
+      email: Joi.string().email().required().error(new Error('Invalid email id')),
+      password: Joi.string().required().error(new Error('Invalid password')),
+    });
+
+    const result = schema.validate({
+      email,
+      password,
+    });
+
+    if (result.error) {
+      return res.status(400).send(utils.responseMsg(errorMsg.invalidDataProvided(result.error.message)));
+    }
+
+    const userDetails = await sequelize
+      .model('user')
+      .findOne({
+        'where': {
+          email
+        }
+      });
+
+    if (!utils.checkIfDataExists(userDetails)) {
+      return res.status(twoNotOne).send(utils.responseMsg(errorMsg.userNotFound));
+    }
+
+    if (!bcrypt.compareSync(password.trim(), userDetails.password)) {
+      return res.status(fourNotThree).send(utils.responseMsg(errorMsg.invalidEmailOrPassword));
+    }
+
+    const authToken = this.signToken({ 'user_id': userDetails.id });
+    res.send(utils.responseMsg(null, true, {
+      'auth': true,
+      'authToken': authToken,
+    }));
+
+  } catch (error) {
+    errorLog.error(error);
+    return res.status(fiveHundred).send(utils.responseMsg(errorMsg.internalServerError));
+  }
+};
+
+/**
+ * signToken
+ * @param {String} user user id
+ * @param {String} secretKey App Secret Token
+ */
+exports.signToken = (user, secretKey = process.env.JWT_SECRET) => {
+  return jwt.sign(user, secretKey, { expiresIn: `${process.env.JWT_EXPIRE_IN}` });
 };

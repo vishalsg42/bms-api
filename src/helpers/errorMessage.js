@@ -33,4 +33,12 @@ exports.errorMessages = {
     code: 'Bad Request.',
     message: 'User Already Exists.'
   },
+  userNotFound: {
+    code: 'Bad Request',
+    message: 'User Not Found.'
+  },
+  invalidEmailOrPassword: {
+    code: 'Bad Request',
+    message: 'Check Your Email/Password.'
+  },
 };
