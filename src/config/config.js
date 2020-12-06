@@ -33,9 +33,9 @@ config.client = process.env.CLIENT_URL || '*';
 /* Swagger Definition */
 config.swaggerDefinition = {
   info: {
-    title: 'PRDXN Node API Boilerplate',
+    title: 'Movie API',
     version: '1.0.0',
-    description: '',
+    description: 'Demonstrating RESTful APIs.',
   },
   host: process.env.HOST || 'localhost:8000',
   basePath: '/api',
@@ -50,7 +50,7 @@ config.swaggerDefinition = {
 };
 config.swaggerOptions = {
   customSiteTitle: '[Project Title]',
-  customCss: '',
+  customCss: '.swagger-ui .topbar { display: none }',
   customfavIcon: '',
 };
 
