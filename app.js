@@ -13,7 +13,7 @@ const cors = require('cors');
 const passport = require('passport');
 
 dotenvFlow.config();
-console.log('Current Environment ===>', process.env.NODE_ENV);
+console.log('Current Environment ===>', process.env);
 
 //Local Modules
 const utils = require('./src/helpers/utils');
