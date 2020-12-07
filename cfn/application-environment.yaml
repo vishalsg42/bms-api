@@ -1,0 +1,344 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Provision a elastic beanstalk server php
+
+Parameters:
+  ApplicationName:
+    Description: Name of your application
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: "^[a-zA-Z][-a-zA-Z0-9]*$"
+
+  EnvironmentName:
+    Description: Name of your environment name
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: "^[a-zA-Z][-a-zA-Z0-9]*$"
+
+  StackCount:
+    Type: Number
+    Description: \#number of instances
+
+  Stage:
+    Type: String
+    Description: Name of the environment for eg:dev qa staging prod
+    Default: dev
+    AllowedValues:
+      - dev
+      - qa
+      - staging
+      - prod
+    ConstraintDescription: Specify dev, qa, staging, prod
+
+  #Accepting Env Variables
+  DBName:
+    Type: String
+    Description: "Enviornment variable"
+  DBUser:
+    Type: String
+    Description: "Enviornment variable"
+  DBPassword:
+    Type: String
+    Description: "Enviornment variable"
+  DBHost:
+    Type: String
+    Description: "Enviornment variable"
+  DBDialect:
+    Type: String
+    Description: "Enviornment variable"
+  JWTSecret:
+    Type: String
+    Description: "Enviornment variable"
+  JWTExpireIn:
+    Type: String
+    Description: "Enviornment variable"
+  JWTAlgorithm:
+    Type: String
+    Description: "Enviornment variable"
+  LogMeta:
+    Type: String
+    Description: "Enviornment variable"
+
+  StackType:
+    Description: node or php
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedValues:
+      - node
+      - php
+    ConstraintDescription: Specify node, php
+
+  SSLCertificateArn:
+    Description: The SSL/TLS certificate ARN
+    Type: String
+    MinLength: 0
+    MaxLength: 2048
+    Default: ""
+
+  # Dev instance type
+  InstanceType:
+    Description: The instance type for the dev environment
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    Default: t2.micro
+
+  ProxyServer:
+    NoEcho: "true"
+    Type: String
+    Description: Application Proxy Server
+    Default: nginx
+
+  ApplicationServer:
+    Type: String
+    Description: "Reference of application"
+
+  UserDefineSecurityGroupId:
+    Type: String
+    Description: String of user define security group
+    ConstraintDescription: "must be a string of security group"
+
+Mappings:
+  # Maps stack type parameter to solution stack name string
+  StackMap:
+    node:
+      stackName: 64bit Amazon Linux 2 v5.2.3 running Node.js 12
+    php:
+      stackName: 64bit Amazon Linux 2 v3.1.2 running PHP 7.4
+
+Resources:
+  ApplicationEnvironment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      ApplicationName: !Ref ApplicationServer
+      EnvironmentName:
+        !Join ["-", [!Ref EnvironmentName, !Ref Stage, !Ref StackCount]]
+      Description: !Join [" ", ["environment for ", !Ref Stage]]
+      TemplateName: !Ref ApplicationConfigurationTemplate
+  ApplicationConfigurationTemplate:
+    Type: AWS::ElasticBeanstalk::ConfigurationTemplate
+    Properties:
+      ApplicationName: !Ref ApplicationServer
+      Description: Application configuration template
+      SolutionStackName: !FindInMap [StackMap, !Ref StackType, stackName]
+      OptionSettings:
+        - Namespace: aws:autoscaling:asg
+          OptionName: MinSize
+          Value: "1"
+        - Namespace: aws:autoscaling:asg
+          OptionName: MaxSize
+          Value: "5"
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: LoadBalanced
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: LoadBalancerType
+          Value: application
+        # SSL
+        - Namespace: "aws:elb:listener:443"
+          OptionName: ListenerProtocol
+          Value: !Ref ServiceRole
+        #Launch configuration
+        - Namespace: "aws:autoscaling:launchconfiguration"
+          OptionName: IamInstanceProfile
+          Value: !Ref InstanceProfile
+        - Namespace: "aws:autoscaling:launchconfiguration"
+          OptionName: InstanceType
+          Value: !Ref InstanceType
+        - Namespace: "aws:elasticbeanstalk:environment"
+          OptionName: ServiceRole
+          Value: !Ref ServiceRole
+        # User define security group
+        - Namespace: "aws:autoscaling:launchconfiguration"
+          OptionName: SecurityGroups
+          Value: !Join [",", [!Ref UserDefineSecurityGroupId]]
+
+        #  CPU Measure
+        - Namespace: "aws:autoscaling:trigger"
+          OptionName: MeasureName
+          Value: CPUUtilization
+        - Namespace: "aws:autoscaling:trigger"
+          OptionName: Statistic
+          Value: Sum
+        - Namespace: "aws:autoscaling:trigger"
+          OptionName: Unit
+          Value: Percent
+        - Namespace: "aws:autoscaling:trigger"
+          OptionName: UpperThreshold
+          Value: "60"
+        - Namespace: "aws:autoscaling:trigger"
+          OptionName: UpperBreachScaleIncrement
+          Value: "1"
+        - Namespace: "aws:autoscaling:trigger"
+          OptionName: LowerThreshold
+          Value: "40"
+        - Namespace: "aws:autoscaling:trigger"
+          OptionName: LowerBreachScaleIncrement
+          Value: "-1"
+        - Namespace: "aws:elasticbeanstalk:environment:proxy"
+          OptionName: ProxyServer
+          Value: !Ref ProxyServer
+        - Namespace: "aws:elasticbeanstalk:cloudwatch:logs"
+          OptionName: StreamLogs
+          Value: "true"
+        - Namespace: "aws:elasticbeanstalk:cloudwatch:logs"
+          OptionName: DeleteOnTerminate
+          Value: "true"
+        - Namespace: "aws:elasticbeanstalk:cloudwatch:logs"
+          OptionName: RetentionInDays
+          Value: "3"
+
+        # Default Process
+        - Namespace: aws:elbv2:listener:80
+          OptionName: DefaultProcess
+          Value: default
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: MatcherHTTPCode
+          Value: "200,301"
+
+        # Custom Env variable
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_NAME
+          Value: !Ref DBName
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_USERNAME
+          Value: !Ref DBUser
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_PASSWORD
+          Value: !Ref DBPassword
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_USERNAME
+          Value: !Ref DBUser
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_HOST
+          Value: !Ref DBHost
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_DIALECT
+          Value: !Ref DBDialect
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JWT_SECRET
+          Value: !Ref JWTSecret
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JWT_EXPIRE_IN
+          Value: !Ref JWTExpireIn
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JWT_ALGORITHM
+          Value: !Ref JWTAlgorithm
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: LOG_META
+          Value: !Ref LogMeta
+
+        #SSL Config
+        # - Namespace: aws:elbv2:listener:443
+        #   OptionName: DefaultProcess
+        #   Value: default
+        # - Namespace: aws:elbv2:listener:443
+        #   OptionName: Protocol
+        #   Value: HTTPS
+        # - Namespace: aws:elbv2:listener:443
+        #   OptionName: SSLCertificateArns
+        #   Value: !Ref SSLCertificateArn
+        # - Namespace: aws:elbv2:listener:443
+        #   OptionName: SSLPolicy
+        #   Value: ELBSecurityPolicy-2016-08
+        # - Namespace: aws:elasticbeanstalk:environment:process:https
+        #   OptionName: StickinessEnabled
+        #   Value: "true"
+
+        # PHP Config
+        # - Namespace: "aws:elasticbeanstalk:container:php:phpini"
+        #   OptionName: memory_limit
+        #   Value: "256M"
+        # - Namespace: "aws:elasticbeanstalk:container:php:phpini"
+        #   OptionName: allow_url_fopen
+        #   Value: "On"
+
+  ServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName:
+        !Join [
+          "-",
+          [!Ref EnvironmentName, !Ref Stage, "service", !Ref StackCount],
+        ]
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ""
+            Effect: Allow
+            Principal:
+              Service: "elasticbeanstalk.amazonaws.com"
+            Action: "sts:AssumeRole"
+            Condition:
+              StringEquals:
+                "sts:ExternalId": elasticbeanstalk
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth
+        - arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkService
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref InstanceProfileRole
+  InstanceProfileRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName:
+        !Join [
+          "-",
+          [
+            !Ref EnvironmentName,
+            !Ref Stage,
+            "instance-profile",
+            !Ref StackCount,
+          ],
+        ]
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSElasticBeanstalkWorkerTier
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker
+        - arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier
+      # VersionLabel:
+  # AppVersion:
+  #   Type: "AWS::ElasticBeanstalk::ApplicationVersion"
+  #   Properties:
+  #     ApplicationName: !Ref ApplicationServer
+# aws elasticbeanstalk list-available-solution-stacks
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-as-launchconfig.html
+# https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/iam-instanceprofile.html
+# https://github.com/aws-samples/startup-kit-templates/blob/master/templates/elastic-beanstalk.cfn.yml
+Outputs:
+  Name:
+    Description: Elastic Beanstalk Stack Name
+    Value: !Ref AWS::StackName
+    Export:
+      Name: !Sub ${AWS::StackName}-Name
+  EnvironmentURL:
+    Description: Environment URL
+    Value: !GetAtt ApplicationEnvironment.EndpointURL
+    Export:
+      Name: !Sub "${AWS::StackName}-EnvironmentURL"
+  EnvironmentName:
+    Description: Environment Name
+    Value: !Sub "${ApplicationName}-${ApplicationEnvironment}"
+    Export:
+      Name: !Sub "${AWS::StackName}-EnvironmentName"
+  TypeOfStack:
+    Description: Stack type
+    Value: !Ref StackType
+    Export:
+      Name: !Sub "${AWS::StackName}-TypeOfStack"

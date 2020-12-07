@@ -1,0 +1,157 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Includes all the stack of the enviornment
+Parameters:
+  ApplicationName:
+    Description: Name of your application
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: "^[a-zA-Z][-a-zA-Z0-9]*$"
+  SecretKey:
+    Type: String
+    Description: Name of the secret key
+Resources:
+  ApplicationServer:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: !Ref ApplicationName
+      Description: PHP server in Elastic Beanstalk
+
+  MovieAPIService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://movie-cf.s3.ap-south-1.amazonaws.com/application-environment.yaml
+      Parameters:
+        ApplicationName: !Ref ApplicationName
+        ApplicationServer: !Ref ApplicationServer
+        Stage: prod
+        StackCount: 0
+        EnvironmentName: "movie-api"
+        StackType: node
+        InstanceType: t2.micro
+        UserDefineSecurityGroupId: !Ref APIDBSecurityGroup
+        DBName:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:db_name}}",
+            ],
+          ]
+        DBUser:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:db_username}}",
+            ],
+          ]
+        DBPassword:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:db_password}}",
+            ],
+          ]
+        DBHost: !GetAtt MovieDB.Outputs.DBEndpoint
+        DBDialect:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:db_dialect}}",
+            ],
+          ]
+        JWTSecret:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:jwt_secret}}",
+            ],
+          ]
+        JWTExpireIn:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:jwt_expire_in}}",
+            ],
+          ]
+        JWTAlgorithm:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:jwt_algorithm}}",
+            ],
+          ]
+        LogMeta:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:log_meta}}",
+            ],
+          ]
+
+  APIDBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Common security group for elastic beanstalk & database
+      GroupName: !Join ["-", [!Ref ApplicationServer, "api-db"]]
+
+  APIInboundRule:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !GetAtt APIDBSecurityGroup.GroupId
+      SourceSecurityGroupId: !GetAtt APIDBSecurityGroup.GroupId
+      IpProtocol: tcp
+      FromPort: 3306
+      ToPort: 3306
+      Description: "Allow API to access DB"
+
+  MovieDB:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://movie-cf.s3.ap-south-1.amazonaws.com/application-db.yaml
+      Parameters:
+        Stage: prod
+        StackCount: 1
+        DBName:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:db_name}}",
+            ],
+          ]
+        DBUser:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:db_username}}",
+            ],
+          ]
+        DBPassword:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:db_password}}",
+            ],
+          ]
+        UserDefineSecurityGroupId: !GetAtt APIDBSecurityGroup.GroupId

@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Provision a rds instance
+Resources:
+  DBMonitoringRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join ["-", ["check", "role"]]
+      Description: Allows RDS to manage CloudWatch Logs resources for Enhanced Monitoring on your behalf.
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "monitoring.rds.amazonaws.com"
+            Action: "sts:AssumeRole"
+            # Condition:
+            #   StringEquals:
+            #     "iam:AWSServiceName": rds.amazonaws.com
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole
+Outputs:
+  RoleArn:
+    Value: !GetAtt DBMonitoringRole.Arn
+  RoleIAM:
+    Value: !Ref DBMonitoringRole
+  RoleId:
+    Value: !GetAtt DBMonitoringRole.RoleId

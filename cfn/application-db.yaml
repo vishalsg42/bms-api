@@ -1,0 +1,148 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Provision a rds instance
+Parameters:
+  Stage:
+    Type: String
+    Description: Name of the environment for eg:dev qa staging prod
+    Default: dev
+    AllowedValues:
+      - dev
+      - qa
+      - staging
+      - prod
+    ConstraintDescription: Specify dev, qa, staging, prod
+  StackCount:
+    Type: Number
+    Description: \#number of instances
+    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+  DBName:
+    Type: String
+    Default: "MyDatabase"
+    Description: The database name
+    MinLength: 1
+    MaxLength: 64
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+  DBUser:
+    Type: String
+    Description: The database admin account username
+    NoEcho: "true"
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+  DBPassword:
+    Type: String
+    Description: The database admin account password
+    NoEcho: "true"
+    MinLength: 1
+    MaxLength: 41
+    AllowedPattern: "[a-zA-Z0-9]+"
+    ConstraintDescription: must contain only alphanumeric characters.
+  DBAllocatedStorage:
+    Default: 20
+    Description: The size of the database (Gb)
+    Type: Number
+    MinValue: "5"
+    MaxValue: "1024"
+    ConstraintDescription: must be between 5 and 1024Gb.
+  DBInstanceClass:
+    Description: The database instance type
+    Type: String
+    Default: db.t2.micro
+    AllowedValues:
+      [
+        db.t1.micro,
+        db.m1.small,
+        db.m1.medium,
+        db.m1.large,
+        db.m1.xlarge,
+        db.m2.xlarge,
+        db.m2.2xlarge,
+        db.m2.4xlarge,
+        db.m3.medium,
+        db.m3.large,
+        db.m3.xlarge,
+        db.m3.2xlarge,
+        db.m4.large,
+        db.m4.xlarge,
+        db.m4.2xlarge,
+        db.m4.4xlarge,
+        db.m4.10xlarge,
+        db.r3.large,
+        db.r3.xlarge,
+        db.r3.2xlarge,
+        db.r3.4xlarge,
+        db.r3.8xlarge,
+        db.m2.xlarge,
+        db.m2.2xlarge,
+        db.m2.4xlarge,
+        db.cr1.8xlarge,
+        db.t2.micro,
+        db.t2.small,
+        db.t2.medium,
+        db.t2.large,
+      ]
+    ConstraintDescription: must select a valid database instance type.
+
+  UserDefineSecurityGroupId:
+    Type: String
+    Description: String of user define security group
+    ConstraintDescription: "must be a string of security group"
+
+Resources:
+  MasterDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: !Ref DBName
+      DBInstanceIdentifier:
+        !Join ["-", [!Ref DBName, !Ref Stage, !Ref StackCount]]
+      AllocatedStorage: !Ref DBAllocatedStorage
+      DBInstanceClass: !Ref DBInstanceClass
+      Engine: MySQL
+      MasterUsername: !Ref DBUser
+      MasterUserPassword: !Ref DBPassword
+      PubliclyAccessible: false
+      StorageType: gp2
+      StorageEncrypted: false
+      MonitoringInterval: 60
+      MonitoringRoleArn: !GetAtt DBMonitoringRole.Arn
+      VPCSecurityGroups:
+        - !Ref UserDefineSecurityGroupId
+      EnablePerformanceInsights: false
+      Tags:
+        - Key: Name
+          Value: Master Database
+
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
+
+  DBMonitoringRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName:
+        !Join ["-", [!Ref DBName, !Ref Stage, "monitoring", !Ref StackCount]]
+      Description: Allows RDS to manage CloudWatch Logs resources for Enhanced Monitoring on your behalf.
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "monitoring.rds.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole
+
+Outputs:
+  DBName:
+    Description: Database Name to connect the rds
+    Value: !Ref DBName
+  DBEndpoint:
+    Description: Database Enpoint to connect the rds
+    Value: !GetAtt MasterDB.Endpoint.Address
+  DBPort:
+    Description: Database Port to connect the rds
+    Value: !GetAtt MasterDB.Endpoint.Port
+    # Export:
+    #   Name: !Ref MasterDB
