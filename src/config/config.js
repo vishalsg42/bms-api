@@ -38,7 +38,6 @@ config.swaggerDefinition = {
     description: 'Demonstrating RESTful APIs.',
   },
   host: process.env.HOST || 'localhost:8000',
-  schemes: process.env.SWAGGER_HOST_SCHEMES || 'http',
   basePath: '/api',
   securityDefinitions: {
     bearerAuth: {
