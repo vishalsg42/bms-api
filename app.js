@@ -12,7 +12,7 @@ const cors = require('cors');
 const passport = require('passport');
 
 dotenvFlow.config();
-console.log('Current Environment ===>', process.env);
+console.log('Current Environment ===>', process.env.NODE_ENV);
 
 //Local Modules
 const utils = require('./src/helpers/utils');
@@ -105,8 +105,12 @@ app.use(compression());
 /* Configuring Routes */
 app.use('/api',routes);
 
+app.get('/', function (req, res) {
+  res.status(200).send(utils.responseMsg(null, true, 'Welcome to Movie API'));
+});
+
 /* Handling invalid route */
-app.use('/', function (req, res) {
+app.use(function (req, res) {
   res.status(404).send(utils.responseMsg(errorMessages.routeNotFound));
 });
 
