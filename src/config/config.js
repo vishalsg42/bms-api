@@ -49,7 +49,7 @@ config.swaggerDefinition = {
   },
 };
 config.swaggerOptions = {
-  customSiteTitle: '[Project Title]',
+  customSiteTitle: 'Movie Api Documents',
   customCss: '.swagger-ui .topbar { display: none }',
   customfavIcon: '',
 };

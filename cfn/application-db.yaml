@@ -99,7 +99,7 @@ Resources:
         !Join ["-", [!Ref DBName, !Ref Stage, !Ref StackCount]]
       AllocatedStorage: !Ref DBAllocatedStorage
       DBInstanceClass: !Ref DBInstanceClass
-      Engine: MySQL
+      Engine: MariaDB
       MasterUsername: !Ref DBUser
       MasterUserPassword: !Ref DBPassword
       PubliclyAccessible: false
