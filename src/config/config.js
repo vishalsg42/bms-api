@@ -8,12 +8,13 @@ let noSqlDbConfig = {
 
 /* sql connection configuration */
 let sqlDbConfig = {
-  username: process.env.DB_USERNAME || 'admin',
-  password: process.env.DB_PASSWORD || 'admin',
+  username: process.env.DB_USERNAME || 'root',
+  password: process.env.DB_PASSWORD || 'root',
   host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || '1433',
+  port: process.env.DB_PORT || '3306',
   dialect: process.env.DB_DIALECT || 'mariadb',
-  name: process.env.DB_NAME || 'prdxn',
+  name: process.env.DB_NAME || 'bms-api',
+  timezone: process.env.TIMEZONE || '+05:30',
 };
 
 config.db = {
@@ -23,7 +24,7 @@ config.db = {
 
 /* JWT Authentication Credentials  */
 config.jwt = {
-  secret: process.env.JWT_SECRET  || 'prdxn',
+  secret: process.env.JWT_SECRET || 'qweqweUQKJNqweaw!weqedwq',
   expireIn: process.env.JWT_EXPIRE_IN || '1d',
   algorithm: process.env.JWT_ALGORITHM || 'HS256',
 };

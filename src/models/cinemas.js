@@ -10,10 +10,10 @@ const cinemaSchema = sequelize.define('cinema', {
   'name': {
     'type': Sequelize.STRING(50)
   },
-  'totalCinemaHalls': {
-    'type': Sequelize.SMALLINT(10)
+  'total_cinema_halls': {
+    'type': Sequelize.SMALLINT,
   },
-  'zippcode': {
+  'zipcode': {
     'type': Sequelize.STRING(16)
   },
   'city_id': {

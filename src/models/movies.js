@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/dbConfig').default;
 
-const movieSchema = sequelize.define('user', {
+const movieSchema = sequelize.define('movie', {
   'id': {
     'primaryKey': true,
     'type': Sequelize.UUID,
@@ -11,7 +11,7 @@ const movieSchema = sequelize.define('user', {
     'type': Sequelize.STRING(50)
   },
   'description': {
-    'type': Sequelize.STRING(512)
+    'type': Sequelize.TEXT
   },
   'duration': {
     'type': Sequelize.STRING(50)
