@@ -1,6 +1,7 @@
 // User define DB Creadentials
 const dbCredentials = require('./config').db;
 const Sequelize = require('sequelize');
+const bcrypt = require('bcryptjs');
 
 const Op = Sequelize.Op;
 const operatorsAliases = {
@@ -69,6 +70,30 @@ const sequelize = new Sequelize(name, username, password, {
   },
 });
 
+const db = {};
+
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
+
+db.cinemaHall = require('../models/cinemaHall')(sequelize, Sequelize);
+db.cinemas = require('../models/cinemas')(sequelize, Sequelize);
+db.cinemaSeats = require('../models/cinemaSeats')(sequelize, Sequelize);
+db.city = require('../models/cities')(sequelize, Sequelize);
+db.show = require('../models/show')(sequelize, Sequelize);
+db.movies = require('../models/movies')(sequelize, Sequelize);
+db.user = require('../models/users')(sequelize, Sequelize, bcrypt);
+
+/**Relationship cinema & city*/
+db.city.hasMany(sequelize.model('cinema'));
+db.cinemas.belongsTo(sequelize.model('city'));
+
+/**Relationship between cinema & cinema hall*/
+db.cinemas.hasMany(sequelize.model('cinema_hall'));
+db.cinemaHall.belongsTo(sequelize.model('cinema'));
+
+/**Relationship between cinema hall & cinema show*/
+db.cinemaHall.belongsTo(sequelize.model('cinema'));
+
 sequelize
   .authenticate()
   .then(() =>
@@ -84,5 +109,5 @@ process.on('SIGINT', function () {
 });
 
 //Exported the database connection to be imported at the server
-exports.default = sequelize;
+exports.default = db;
 

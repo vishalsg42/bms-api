@@ -3,4 +3,5 @@ exports.default = {
   serverHealth: require('../controllers/serverHealth'),
   authClient: require('../controllers/authController'),
   user : require('../controllers/user'),
+  movie: require('../controllers/movie')
 };

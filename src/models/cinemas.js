@@ -1,35 +1,34 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../config/dbConfig').default;
-
-const cinemaSchema = sequelize.define('cinema', {
-  'id': {
-    'primaryKey': true,
-    'type': Sequelize.UUID,
-    'defaultValue': Sequelize.UUIDV4
-  },
-  'name': {
-    'type': Sequelize.STRING(50)
-  },
-  'total_cinema_halls': {
-    'type': Sequelize.SMALLINT,
-  },
-  'zipcode': {
-    'type': Sequelize.STRING(16)
-  },
-  'city_id': {
-    'type': Sequelize.UUID,
-    'defaultValue': Sequelize.UUIDV4
-  },
-}, {
-  'indexes': [
-    {
-      'fields': ['id', 'name', 'zippcode', 'city_id']
+module.exports = (sequelize, DataTypes) => {
+  const cinemaSchema = sequelize.define('cinema', {
+    'id': {
+      'primaryKey': true,
+      'type': DataTypes.UUID,
+      'defaultValue': DataTypes.UUIDV4
     },
-  ]
-});
+    'name': {
+      'type': DataTypes.STRING(50)
+    },
+    'total_cinema_halls': {
+      'type': DataTypes.SMALLINT,
+    },
+    'zipcode': {
+      'type': DataTypes.STRING(16)
+    },
+    'city_id': {
+      'type': DataTypes.UUID,
+      'defaultValue': DataTypes.UUIDV4
+    },
+  }, {
+    'indexes': [
+      {
+        'fields': ['id', 'name', 'zipcode', 'city_id']
+      },
+    ]
+  });
 
-cinemaSchema.associate = function (models) {
-  cinemaSchema.belongsTo(models.city, { foreignKey: 'city_id', as: 'city' });
+  cinemaSchema.associate = function (models) {
+    cinemaSchema.belongsTo(models.city, { foreignKey: 'city_id', as: 'city' });
+  };
+
+  return cinemaSchema;
 };
-
-exports.default = cinemaSchema;

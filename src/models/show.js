@@ -1,40 +1,40 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../config/dbConfig').default;
-
-const cinemaHallSeatSchema = sequelize.define('show', {
-  'id': {
-    'primaryKey': true,
-    'type': Sequelize.UUID,
-    'defaultValue': Sequelize.UUIDV4
-  },
-  'date': {
-    'type': Sequelize.DATE
-  },
-  'start_time': {
-    'type': Sequelize.DATE
-  },
-  'end_time': {
-    'type': Sequelize.DATE
-  },
-  'cinema_hall_id': {
-    'type': Sequelize.UUID,
-    'defaultValue': Sequelize.UUIDV4
-  },
-  'movie_id': {
-    'type': Sequelize.UUID,
-    'defaultValue': Sequelize.UUIDV4
-  },
-}, {
-  'indexes': [
-    {
-      'fields': ['id', 'date', 'cinema_hall_id', 'movie_id']
+module.exports = (sequelize, DataTypes) => {
+  const show = sequelize.define('show', {
+    'id': {
+      'primaryKey': true,
+      'type': DataTypes.UUID,
+      'defaultValue': DataTypes.UUIDV4
     },
-  ]
-});
+    'date': {
+      'type': DataTypes.DATE
+    },
+    'start_time': {
+      'type': DataTypes.DATE
+    },
+    'end_time': {
+      'type': DataTypes.DATE
+    },
+    'cinema_hall_id': {
+      'type': DataTypes.UUID,
+      'defaultValue': DataTypes.UUIDV4
+    },
+    'movie_id': {
+      'type': DataTypes.UUID,
+      'defaultValue': DataTypes.UUIDV4
+    },
+  }, {
+    'indexes': [
+      {
+        'fields': ['id', 'date', 'cinema_hall_id', 'movie_id']
+      },
+    ]
+  });
 
-cinemaHallSeatSchema.associate = function (models) {
-  cinemaHallSeatSchema.belongsTo(models.cinema_hall, { foreignKey: 'cinema_hall_id', as: 'cinema_hall' });
-  cinemaHallSeatSchema.belongsTo(models.movie, { foreignKey: 'movie_id', as: 'movie' });
+  return show;
+
 };
 
-exports.default = cinemaHallSeatSchema;
+// show.associate = function (models) {
+//   show.belongsTo(models.cinema_hall, { foreignKey: 'cinema_hall_id', as: 'cinema_hall' });
+//   show.belongsTo(models.movie, { foreignKey: 'movie_id', as: 'movie' });
+// };

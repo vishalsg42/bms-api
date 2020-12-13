@@ -2,7 +2,7 @@ require('../../src/requireAllModels');
 const sequelize = require('../../src/config/dbConfig').default;
 const {
   map,
-  find
+  find,
 } = require('lodash');
 const {
   movies,
@@ -32,32 +32,46 @@ async function main() {
         infoLog.info('Inserting: Cinema');
         let insertedCinemaList = await initSeed.bulkInsert('cinema', cinemaList);
         let cinemaHallList = [];
-        for (let index = 0; index < randomRangeNumber(1, 3); index++) {
-          cinemaHallList.push(...map(insertedCinemaList, (cinema) => {
-            return {
-              name: 'screen ' + (index + 1),
+        // let cinemaHallCount = reduce(, 0);
+        let cinemaHallCount = map(insertedCinemaList, (c) => {
+          return {
+            id: c['dataValues']['id'], total_cinema_halls: c['dataValues']['total_cinema_halls']
+          };
+        });
+        for (let index = 0; index < cinemaHallCount.length; index++) {
+          for (let j = 0; j < cinemaHallCount[index]['total_cinema_halls']; j++) {
+            cinemaHallList.push({
+              name: 'screen ' + (j + 1),
               total_seats: randomRangeNumber(10, 20),
-              cinema_id: cinema['dataValues']['id']
-            };
-          }));
+              cinema_id: cinemaHallCount[index]['id']
+            });
+          }
         }
         infoLog.info('Successfully inserted: Cinema');
         // Insert cinema screen
         infoLog.info('Inserting: Cinema Hall');
         let insertedCinemaHall = await initSeed.bulkInsert('cinema_hall', cinemaHallList);
-        insertedCinemaHall = map(insertedCinemaHall, 'dataValues.id');
+        insertedCinemaHall = map(insertedCinemaHall, (c) => {
+          return {
+            id: c['dataValues']['id'],
+            total_seats: c['dataValues']['total_seats'],
+          };
+        });
         infoLog.info('Successfully inserted: Cinema Hall');
 
         // Insert seat for cinema halls
         let cinemaSeatList = [];
-        insertedCinemaHall.map(cinemaHall => {
-          for (let seatLimit = 0; seatLimit < randomRangeNumber(10, 15); seatLimit++) {
+        // console.log("cinemaHall ", insertedCinemaHall);
+        // process.exit();
+
+        for (let index = 0; index < insertedCinemaHall.length; index++) {
+          for (let j = 0; j < insertedCinemaHall[index]['total_seats']; j++) {
             cinemaSeatList.push({
-              seat_number: seatLimit + 1,
-              cinema_hall_id: cinemaHall
+              seat_number: j + 1,
+              cinema_hall_id: insertedCinemaHall[index]['id']
             });
           }
-        });
+        }
 
         infoLog.info('Inserting: Cinema Seat');
         await initSeed.bulkInsert('cinema_seat', cinemaSeatList);
@@ -101,7 +115,7 @@ async function main() {
 
 main();
 
-function randomRangeNumber(start = 0, end = 1) {
-  return Math.floor(Math.random() * end + start);
+function randomRangeNumber(min = 0, max = 1) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 

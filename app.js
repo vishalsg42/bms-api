@@ -25,8 +25,8 @@ const routes = require('./src/routes/routes');
 /* Passport.js initialization */
 const authStrategy = require('./src/services/authServices');
 
-require('./src/requireAllModels');
-
+/* Importing database connection when server starts **/
+require('./src/config/dbConfig');
 
 passport.use(authStrategy.strategy);
 const app = express();
@@ -47,9 +47,6 @@ app.set('title', 'Movie API');
 app.set('query parser', 'extended');
 
 const clientUrl = process.env.CLIENT_URL || config.client;
-
-/* Importing database connection when server starts **/
-require('./src/config/dbConfig');
 
 /* CORS Setting */
 const corsOption = {
@@ -103,7 +100,7 @@ app.use(require('express-status-monitor')());
 app.use(compression());
 
 /* Configuring Routes */
-app.use('/api',routes);
+app.use('/api', routes);
 
 app.get('/', function (req, res) {
   res.status(200).send(utils.responseMsg(null, true, 'Welcome to Movie API'));

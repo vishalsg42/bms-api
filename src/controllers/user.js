@@ -77,7 +77,7 @@ exports.registerUser = async (req, res) => {
       return res.status(400).send(utils.responseMsg(errorMsg.invalidDataProvided(result.error.message)));
     }
 
-    let user = await sequelize.model('user').findOne({
+    let user = await sequelize.user.findOne({
       'where': {
         'email': {
           '$like': `%${email}%`
@@ -89,7 +89,7 @@ exports.registerUser = async (req, res) => {
       return res.status(fourHundred).send(utils.responseMsg(errorMsg.userExists));
     }
 
-    let createUser = await sequelize.model('user').create({
+    let createUser = await sequelize.user.create({
       first_name,
       last_name,
       email,
@@ -141,7 +141,7 @@ exports.login = async (req, res) => {
     }
 
     const userDetails = await sequelize
-      .model('user')
+      .user
       .findOne({
         'where': {
           email
