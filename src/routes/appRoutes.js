@@ -101,6 +101,36 @@ router.post('/login', dependencies.user.login);
  */
 router.get('/city/:id/movies', dependencies.movie.getPlayingMovies);
 
+/**
+ * @swagger
+ * /movie/{id}/cinemas:
+ *  get:
+ *    security:
+ *     - bearerAuth: []
+ *    tags:
+ *      - Endpoints
+ *    name: List of cinemas with showtime of a movie
+ *    summary: View all cinemas in which a movie is playing along with all the showtimes.
+ *    consumes:
+ *      - application/json
+ *    produces:
+ *      - application/json
+ *    parameters:
+ *      - name: id
+ *        in: path
+ *        type: string
+ *        description: Movie Ids
+ *        required: true
+ *    responses:
+ *      200:
+ *        description: List of the cinema list along with showtimes
+ *      400:
+ *        description: Movie should be released
+ *      500:
+ *        description: Internal server error.
+ */
+router.get('/movie/:id/cinemas', dependencies.movie.getMoviesByCinemas);
+
 // router.get("/secret", passport.authenticate('jwt', { session: false }), function (req, res) {
 //   res.json("Success! You can not see this without a token");
 // });

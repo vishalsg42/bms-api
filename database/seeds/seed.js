@@ -6,8 +6,7 @@ class Seed {
 
   bulkInsert(tablename, data = []) {
     try {
-      return data.length ? this.#db.model(tablename)
-        .bulkCreate(data, { returning: true }) : false;
+      return data.length ? this.#db[tablename].bulkCreate(data, { returning: true }) : false;
     } catch (error) {
       console.error('error', error);
     }
@@ -15,7 +14,7 @@ class Seed {
 
   fetchContent(tablename) {
     try {
-      return this.#db.model(tablename).findAll();
+      return this.#db[tablename].findAll();
     } catch (error) {
       console.error('error', error);
     }
