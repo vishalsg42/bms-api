@@ -44,7 +44,7 @@ router.post('/user/register', dependencies.user.registerUser);
  *    tags:
  *      - User
  *    name: User Signin
- *    summary: Generate Token to login
+ *    summary: Generate token to login
  *    consumes:
  *      - application/json
  *    produces:
