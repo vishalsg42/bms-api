@@ -31,7 +31,7 @@ exports.errorMessages = {
   },
   userExists: {
     code: 'Bad Request.',
-    message: 'User Already Exists.'
+    message: 'User already exists.'
   },
   userNotFound: {
     code: 'Bad Request',
@@ -39,6 +39,6 @@ exports.errorMessages = {
   },
   invalidEmailOrPassword: {
     code: 'Bad Request',
-    message: 'Invalid email or password.'
+    message: 'Invalid email or incorrect password.'
   },
 };

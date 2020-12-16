@@ -89,7 +89,7 @@ exports.registerUser = async (req, res) => {
       return res.status(fourHundred).send(utils.responseMsg(errorMsg.userExists));
     }
 
-    let createUser = await sequelize.user.create({
+    await sequelize.user.create({
       first_name,
       last_name,
       email,
@@ -102,7 +102,7 @@ exports.registerUser = async (req, res) => {
       country
     });
 
-    res.status(twoNotOne).send(utils.responseMsg(null, true, createUser));
+    res.status(twoNotOne).send(utils.responseMsg(null, true, 'Successfully registered user!'));
   } catch (error) {
     errorLog.error(error);
     return res.status(fiveHundred).send(utils.responseMsg(errorMsg.internalServerError));

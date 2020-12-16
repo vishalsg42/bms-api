@@ -110,8 +110,8 @@ db.show.belongsTo(sequelize.model('show_seat'));
 
 // /**Relationship between show, booking & user*/
 db.booking.hasMany(sequelize.model('show'));
-db.booking.hasMany(sequelize.model('user'));
-db.user.belongsTo(sequelize.model('booking'));
+// db.booking.hasMany(sequelize.model('user'));
+// db.user.belongsTo(sequelize.model('booking'));
 db.show.belongsTo(sequelize.model('booking'));
 
 
