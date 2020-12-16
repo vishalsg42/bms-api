@@ -72,7 +72,7 @@ async function main() {
           }
 
           infoLog.info('Inserting: Cinema Seat');
-          await initSeed.bulkInsert('cinemaSeats', cinemaSeatList);
+          await initSeed.bulkInsert('cinemaSeat', cinemaSeatList);
           infoLog.info('Successfully inserted: Cinema Seat');
 
           infoLog.info('Inserting: Movies');
@@ -84,11 +84,11 @@ async function main() {
           let showTimeList = [];
 
           let getCinemas = await initSeed.fetchContent('cinemaHall');
-          insertingMovies.map((movie, i) => {
+          insertingMovies.map((movie) => {
             getCinemas.map(cinema => {
-              showTime.map(st => {
+              showTime.map((st, j) => {
                 const currentDate = new Date();
-                currentDate.setDate(currentDate.getDate() + i);
+                currentDate.setDate(currentDate.getDate() + j);
                 currentDate.setHours(0, 0, 0);
                 let stime = {
                   date: currentDate,
@@ -103,6 +103,20 @@ async function main() {
           });
           await initSeed.bulkInsert('show', showTimeList);
           infoLog.info('Successfully inserted: shows');
+          infoLog.info('Inserting: Show Seats');
+
+          let fetchSeatList = await initSeed.fetchCinemaList();
+
+          let listPrice = [250, 300, 350];
+          fetchSeatList = map(fetchSeatList, (fsl) => {
+            fsl['price'] = listPrice[randomRangeNumber(0, listPrice.length - 1)];
+            fsl['status'] = '0';
+            return fsl;
+          });
+
+          await initSeed.bulkInsertInBatch('showSeat',fetchSeatList);
+          infoLog.info('Successfully inserted: shows');
+
         }
       }).catch(error => {
         console.log('error ', error);

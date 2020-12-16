@@ -77,11 +77,13 @@ db.sequelize = sequelize;
 
 db.cinemaHall = require('../models/cinemaHall')(sequelize, Sequelize);
 db.cinemas = require('../models/cinemas')(sequelize, Sequelize);
-db.cinemaSeats = require('../models/cinemaSeats')(sequelize, Sequelize);
+db.cinemaSeat = require('../models/cinemaSeats')(sequelize, Sequelize);
 db.city = require('../models/cities')(sequelize, Sequelize);
 db.show = require('../models/show')(sequelize, Sequelize);
 db.movies = require('../models/movies')(sequelize, Sequelize);
 db.user = require('../models/users')(sequelize, Sequelize, bcrypt);
+db.showSeat = require('../models/showSeat')(sequelize, Sequelize);
+db.booking = require('../models/bookings')(sequelize, Sequelize);
 
 /**Relationship cinema & city*/
 db.city.hasMany(sequelize.model('cinema'));
@@ -91,8 +93,27 @@ db.cinemas.belongsTo(sequelize.model('city'));
 db.cinemas.hasMany(sequelize.model('cinema_hall'));
 db.cinemaHall.belongsTo(sequelize.model('cinema'));
 
-/**Relationship between cinema hall & cinema show*/
-db.cinemaHall.belongsTo(sequelize.model('cinema'));
+/**Relationship between cinema hall & show*/
+db.show.belongsTo(sequelize.model('cinema_hall'));
+
+/**Relationship between cinema hall & cinema seat*/
+// db.cinemaSeat.hasMany(sequelize.model('cinema_hall'));
+// db.cinemaHall.belongsTo(sequelize.model('cinema_seat'));
+
+/**Relationship between cinema seat, show, booking*/
+// db.showSeat.hasMany(sequelize.model('cinema_seat'));
+db.showSeat.hasMany(sequelize.model('show'));
+db.showSeat.hasMany(sequelize.model('booking'));
+db.booking.belongsTo(sequelize.model('show_seat'));
+db.show.belongsTo(sequelize.model('show_seat'));
+// db.cinemaSeat.belongsTo(sequelize.model('show_seat'));
+
+// /**Relationship between show, booking & user*/
+db.booking.hasMany(sequelize.model('show'));
+db.booking.hasMany(sequelize.model('user'));
+db.user.belongsTo(sequelize.model('booking'));
+db.show.belongsTo(sequelize.model('booking'));
+
 
 sequelize
   .authenticate()

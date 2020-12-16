@@ -100,11 +100,10 @@ CREATE TABLE shows (
 
 CREATE TABLE show_seats(
     id VARCHAR(36) PRIMARY KEY,
-STATUS ENUM
+status ENUM
     (
-        'Available',
-        'Booked',
-        'Not Available'
+        0,
+        1
     ),
     price INT(20),
     cinema_seat_id VARCHAR(36),
@@ -120,10 +119,9 @@ STATUS ENUM
     updated_at DATETIME,
     INDEX(
         id,
-
         cinema_seat_id,
         booking_id,
-    STATUS
+        status
     )
 );
 
@@ -131,7 +129,7 @@ CREATE TABLE bookings (
     id VARCHAR(36) PRIMARY KEY,
     number_of_seats SMALLINT(6),
 
-    status ENUM('Available','Booked','Not Available'),
+    status ENUM('RESERVED','BOOKED'),
 
     user_id VARCHAR(36),
     CONSTRAINT `fk_users`
