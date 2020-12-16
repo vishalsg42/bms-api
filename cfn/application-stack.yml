@@ -103,6 +103,15 @@ Resources:
               "SecretString:log_meta}}",
             ],
           ]
+        Host:
+          !Join [
+            ":",
+            [
+              "{{resolve:secretsmanager",
+              !Ref SecretKey,
+              "SecretString:host}}",
+            ],
+          ]
 
   APIDBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
