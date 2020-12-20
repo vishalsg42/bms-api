@@ -59,6 +59,9 @@ Parameters:
   LogMeta:
     Type: String
     Description: "Enviornment variable"
+  Host:
+    Type: String
+    Description: "Enviornment variable"
 
   StackType:
     Description: node or php
@@ -229,6 +232,9 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: LOG_META
           Value: !Ref LogMeta
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: HOST
+          Value: !Ref Host
 
         #SSL Config
         # - Namespace: aws:elbv2:listener:443

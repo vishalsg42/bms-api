@@ -1,4 +1,4 @@
-# Beslin Event Cloudformation template
+# Movie API Cloudformation template
 
 - To deploy the cloudformation stack execute the below command
-  >$ aws cloudformation deploy --template all-stacks.yml --stack-name beslin-event-service --region ap-south-1 --parameter-overrides ApplicationName=stream-rustic-web-service  --capabilities CAPABILITY_NAMED_IAM --profile vishal-iam
+  >$ aws cloudformation deploy --template cfn/application-stack.yml --stack-name <stack-name> --region <aws-region> --parameter-overrides ApplicationName=<application-name> SecretKey=\<secret-key\>  --capabilities CAPABILITY_NAMED_IAM --profile <profile-name>
